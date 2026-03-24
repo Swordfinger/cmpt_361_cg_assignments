@@ -7,16 +7,29 @@ import { Rasterizer } from './rasterizer.js';
 ////////////////////////////////////////////////////////////////////////////////
 
 // take two vertices defining line and rasterize to framebuffer
-Rasterizer.prototype.drawLine = function(v1, v2) {
+Rasterizer.prototype.drawLine = function(v1, v2) 
+{
   const [x1, y1, [r1, g1, b1]] = v1;
   const [x2, y2, [r2, g2, b2]] = v2;
   // TODO/HINT: use this.setPixel(x, y, color) in this function to draw line
+  
+  dx = x2 - x1;
+  dy = y2 - y1;
+  m = dy / dx;
+
+  ucy = y1
+  for (let x = x1; x <= x2; i++)
+  {
+    ucy = y1 += m;
+    this.setPixel(x, Math.round(y), [r1, g1, b1]);
+  }
   this.setPixel(Math.floor(x1), Math.floor(y1), [r1, g1, b1]);
   this.setPixel(Math.floor(x2), Math.floor(y2), [r2, g2, b2]);
 }
 
 // take 3 vertices defining a solid triangle and rasterize to framebuffer
-Rasterizer.prototype.drawTriangle = function(v1, v2, v3) {
+Rasterizer.prototype.drawTriangle = function(v1, v2, v3) 
+{
   const [x1, y1, [r1, g1, b1]] = v1;
   const [x2, y2, [r2, g2, b2]] = v2;
   const [x3, y3, [r3, g3, b3]] = v3;
