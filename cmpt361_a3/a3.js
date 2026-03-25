@@ -14,6 +14,76 @@ Rasterizer.prototype.drawLine = function(v1, v2)
   // TODO/HINT: use this.setPixel(x, y, color) in this function to draw line
   this.setPixel(Math.floor(x1), Math.floor(y1), [r1, g1, b1]);
   this.setPixel(Math.floor(x2), Math.floor(y2), [r2, g2, b2]);
+  let sx1 = x1, sy1 = y1, sr1 = r1, sg1 = g1, sb1 = b1;
+  let sx2 = x2, sy2 = y2, sr2 = r2, sg2 = g2, sb2 = b2;
+
+  let dx = sx2 - sx1;
+  let dy = sy2 - sy1;
+
+  if (sx1 === sx2 && sy1 === sy2) 
+  {
+    this.setPixel(Math.round(sx1), Math.round(sy1), [sr1, sg1, sb1]);
+    return;
+  }
+
+  if (Math.abs(dx) >= Math.abs(dy)) 
+  {
+    if (sx1 > sx2) 
+    {
+      [sx1, sx2] = [sx2, sx1];
+      [sy1, sy2] = [sy2, sy1];
+      [sr1, sr2] = [sr2, sr1];
+      [sg1, sg2] = [sg2, sg1];
+      [sb1, sb2] = [sb2, sb1];
+    }
+
+    dx = sx2 - sx1;
+    dy = sy2 - sy1;
+
+    const m = dy / dx;
+    let y = sy1;
+
+    this.setPixel(Math.round(sx1), Math.round(sy1), [sr1, sg1, sb1]);
+
+    for (let x = sx1 + 1; x <= sx2; x++) 
+    {
+      y += m;
+      const t = (x - sx1) / dx;
+      const r = sr1 + (sr2 - sr1) * t;
+      const g = sg1 + (sg2 - sg1) * t;
+      const b = sb1 + (sb2 - sb1) * t;
+      this.setPixel(Math.round(x), Math.round(y), [r, g, b]);
+    }
+  }
+  else 
+  {
+    if (sy1 > sy2) 
+    {
+      [sx1, sx2] = [sx2, sx1];
+      [sy1, sy2] = [sy2, sy1];
+      [sr1, sr2] = [sr2, sr1];
+      [sg1, sg2] = [sg2, sg1];
+      [sb1, sb2] = [sb2, sb1];
+    }
+
+    dx = sx2 - sx1;
+    dy = sy2 - sy1;
+
+    const m = dx / dy;
+    let x = sx1;
+
+    this.setPixel(Math.round(sx1), Math.round(sy1), [sr1, sg1, sb1]);
+
+    for (let y = sy1 + 1; y <= sy2; y++) 
+    {
+      x += m;
+      const t = (y - sy1) / dy;
+      const r = sr1 + (sr2 - sr1) * t;
+      const g = sg1 + (sg2 - sg1) * t;
+      const b = sb1 + (sb2 - sb1) * t;
+      this.setPixel(Math.round(x), Math.round(y), [r, g, b]);
+    }
+  }
 }
 
 // take 3 vertices defining a solid triangle and rasterize to framebuffer
