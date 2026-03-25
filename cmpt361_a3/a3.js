@@ -93,6 +93,58 @@ Rasterizer.prototype.drawTriangle = function(v1, v2, v3)
   const [x2, y2, [r2, g2, b2]] = v2;
   const [x3, y3, [r3, g3, b3]] = v3;
   // TODO/HINT: use this.setPixel(x, y, color) in this function to draw triangle
+
+  function edge(x0, y0, x1, y1, x, y) 
+  {
+    return (y0 - y1) * x + (x1 - x0) * y + (x0 * y1 - x1 * y0);
+  }
+
+  function istopleftedge(x0, y0, x1, y1)
+  {
+    let dy = y1 - y0;
+    let dx = x1 - x0;
+    if (dy > 0)
+      return true;
+    else if (dy == 0)
+    {
+      if (dx <= 0)
+        return true;
+      else
+        return false;
+    }
+    else if (dy < 0)
+      return false;
+  }
+
+  function pointIsInsideTriangle(x1, y1, x2, y2, x3, y3, px, py)
+  {
+    if (edge(x1, y1, x2, y2, px, py) > 0 && edge(x2, y2, x3, y3, px, py) > 0 && edge(x3, y3, x1, y1, px, py) > 0)
+      return true;
+    else if ((edge(x1, y1, x2, y2, px, py) == 0 && istopleftedge(x1, y1, x2, y2)) || (edge(x2, y2, x3, y3, px, py) == 0 && istopleftedge(x2, y2, x3, y3)) || (edge(x3, y3, x1, y1, px, py) == 0 && istopleftedge(x3, y3, x1, y1)))
+      return true;
+    else
+      return false;
+  }
+
+
+  //1. Bounding
+  let minX = Math.floor(Math.min(x1, x2, x3));
+  let maxX = Math.ceil(Math.max(x1, x2, x3));
+  let minY = Math.floor(Math.min(y1, y2, y3));
+  let maxY = Math.ceil(Math.max(y1, y2, y3));
+
+  for (let x = minX; x <= maxX; x++)
+  {
+    for (let y = minY; y <= maxY; y++)
+    {
+      let px = x + 0.5;
+      let py = y + 0.5;
+      if (pointIsInsideTriangle(x1, y1, x2, y2, x3, y3, px, py))
+        this.setPixel(Math.floor(px), Math.floor(py), [r1, g1, b1]);
+    }
+  }
+
+  
   this.setPixel(Math.floor(x1), Math.floor(y1), [r1, g1, b1]);
   this.setPixel(Math.floor(x2), Math.floor(y2), [r2, g2, b2]);
   this.setPixel(Math.floor(x3), Math.floor(y3), [r3, g3, b3]);
