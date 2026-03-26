@@ -152,14 +152,10 @@ Rasterizer.prototype.drawTriangle = function(v1, v2, v3)
     return result / 2;
   }
 
-
-
-  // No area check
   let order = isClockwise(x1, y1, x2, y2, x3, y3);
   if (order == 0)
     return;
 
-  //Bounding
   let minX = Math.floor(Math.min(x1, x2, x3));
   let maxX = Math.ceil(Math.max(x1, x2, x3));
   let minY = Math.floor(Math.min(y1, y2, y3));
@@ -193,22 +189,21 @@ Rasterizer.prototype.drawTriangle = function(v1, v2, v3)
 ////////////////////////////////////////////////////////////////////////////////
 // EXTRA CREDIT: change DEF_INPUT to create something interesting!
 ////////////////////////////////////////////////////////////////////////////////
-const DEF_INPUT = [
-  "v,10,10,1.0,0.0,0.0;",
-  "v,52,52,0.0,1.0,0.0;",
-  "v,52,10,0.0,0.0,1.0;",
-  "v,10,52,1.0,1.0,1.0;",
+const DEF_INPUT = 
+[
+  "v,10,15,1.0,0.0,0.0;",
+  "v,54,15,1.0,0.0,0.0;",
+  "v,54,41,1.0,0.0,0.0;",
+  "v,10,41,1.0,0.0,0.0;",
   "t,0,1,2;",
-  "t,0,3,1;",
-  "v,10,10,1.0,1.0,1.0;",
-  "v,10,52,0.0,0.0,0.0;",
-  "v,52,52,1.0,1.0,1.0;",
-  "v,52,10,0.0,0.0,0.0;",
-  "l,4,5;",
-  "l,5,6;",
-  "l,6,7;",
-  "l,7,4;"
+  "t,0,2,3;",
+  "v,28,22,1.0,1.0,1.0;",
+  "v,28,34,1.0,1.0,1.0;",
+  "v,40,28,1.0,1.0,1.0;",
+  "t,4,5,6;"
 ].join("\n");
+
+// I created an youtube icon just for fun, lol
 
 
 // DO NOT CHANGE ANYTHING BELOW HERE
