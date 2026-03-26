@@ -12,8 +12,6 @@ Rasterizer.prototype.drawLine = function(v1, v2)
   const [x1, y1, [r1, g1, b1]] = v1;
   const [x2, y2, [r2, g2, b2]] = v2;
   // TODO/HINT: use this.setPixel(x, y, color) in this function to draw line
-  this.setPixel(Math.floor(x1), Math.floor(y1), [r1, g1, b1]);
-  this.setPixel(Math.floor(x2), Math.floor(y2), [r2, g2, b2]);
   let sx1 = x1, sy1 = y1, sr1 = r1, sg1 = g1, sb1 = b1;
   let sx2 = x2, sy2 = y2, sr2 = r2, sg2 = g2, sb2 = b2;
 
@@ -22,7 +20,7 @@ Rasterizer.prototype.drawLine = function(v1, v2)
 
   if (sx1 === sx2 && sy1 === sy2) 
   {
-    this.setPixel(Math.round(sx1), Math.round(sy1), [sr1, sg1, sb1]);
+    this.setPixel(Math.floor(sx1), Math.floor(sy1), [sr1, sg1, sb1]);
     return;
   }
 
@@ -41,18 +39,18 @@ Rasterizer.prototype.drawLine = function(v1, v2)
     dy = sy2 - sy1;
 
     const m = dy / dx;
-    let y = sy1;
+    let y = Math.floor(sy1);
 
-    this.setPixel(Math.round(sx1), Math.round(sy1), [sr1, sg1, sb1]);
+    this.setPixel(Math.floor(sx1), Math.floor(sy1), [sr1, sg1, sb1]);
 
-    for (let x = sx1 + 1; x <= sx2; x++) 
+    for (let x = Math.floor(sx1) + 1; x <= Math.floor(sx2); x++) 
     {
       y += m;
       const t = (x - sx1) / dx;
       const r = sr1 + (sr2 - sr1) * t;
       const g = sg1 + (sg2 - sg1) * t;
       const b = sb1 + (sb2 - sb1) * t;
-      this.setPixel(Math.round(x), Math.round(y), [r, g, b]);
+      this.setPixel(Math.floor(x), Math.floor(y), [r, g, b]);
     }
   }
   else 
@@ -72,16 +70,16 @@ Rasterizer.prototype.drawLine = function(v1, v2)
     const m = dx / dy;
     let x = sx1;
 
-    this.setPixel(Math.round(sx1), Math.round(sy1), [sr1, sg1, sb1]);
+    this.setPixel(Math.floor(sx1), Math.floor(sy1), [sr1, sg1, sb1]);
 
-    for (let y = sy1 + 1; y <= sy2; y++) 
+    for (let y = Math.floor(sy1) + 1; y <= Math.floor(sy2); y++) 
     {
       x += m;
       const t = (y - sy1) / dy;
       const r = sr1 + (sr2 - sr1) * t;
       const g = sg1 + (sg2 - sg1) * t;
       const b = sb1 + (sb2 - sb1) * t;
-      this.setPixel(Math.round(x), Math.round(y), [r, g, b]);
+      this.setPixel(Math.floor(x), Math.floor(y), [r, g, b]);
     }
   }
 }
@@ -93,6 +91,12 @@ Rasterizer.prototype.drawTriangle = function(v1, v2, v3)
   const [x2, y2, [r2, g2, b2]] = v2;
   const [x3, y3, [r3, g3, b3]] = v3;
   // TODO/HINT: use this.setPixel(x, y, color) in this function to draw triangle
+
+  function isClockwise(x1, y1, x2, y2, x3, y3)
+  {
+    let result = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
+    return result;
+  }
 
   function edge(x0, y0, x1, y1, x, y) 
   {
@@ -107,7 +111,7 @@ Rasterizer.prototype.drawTriangle = function(v1, v2, v3)
       return true;
     else if (dy == 0)
     {
-      if (dx <= 0)
+      if (dx < 0)
         return true;
       else
         return false;
@@ -118,16 +122,44 @@ Rasterizer.prototype.drawTriangle = function(v1, v2, v3)
 
   function pointIsInsideTriangle(x1, y1, x2, y2, x3, y3, px, py)
   {
-    if (edge(x1, y1, x2, y2, px, py) > 0 && edge(x2, y2, x3, y3, px, py) > 0 && edge(x3, y3, x1, y1, px, py) > 0)
-      return true;
-    else if ((edge(x1, y1, x2, y2, px, py) == 0 && istopleftedge(x1, y1, x2, y2)) || (edge(x2, y2, x3, y3, px, py) == 0 && istopleftedge(x2, y2, x3, y3)) || (edge(x3, y3, x1, y1, px, py) == 0 && istopleftedge(x3, y3, x1, y1)))
-      return true;
+    let e1 = edge(x1, y1, x2, y2, px, py);
+    let e2 = edge(x2, y2, x3, y3, px, py);
+    let e3 = edge(x3, y3, x1, y1, px, py);
+
+    if (order < 0)
+    {
+      let pass1 = (e1 < 0) || (e1 == 0 && istopleftedge(x1, y1, x2, y2));
+      let pass2 = (e2 < 0) || (e2 == 0 && istopleftedge(x2, y2, x3, y3));
+      let pass3 = (e3 < 0) || (e3 == 0 && istopleftedge(x3, y3, x1, y1));
+      return pass1 && pass2 && pass3;
+    }
+    else if (order > 0)
+    {
+      let pass1 = (e1 > 0) || (e1 == 0 && istopleftedge(x1, y1, x2, y2));
+      let pass2 = (e2 > 0) || (e2 == 0 && istopleftedge(x2, y2, x3, y3));
+      let pass3 = (e3 > 0) || (e3 == 0 && istopleftedge(x3, y3, x1, y1));
+      return pass1 && pass2 && pass3;
+    }
     else
+    {
       return false;
+    }
+  }
+
+  function triangleArea(x1,y1,x2,y2,x3,y3)
+  {
+    let result = Math.abs(isClockwise(x1, y1, x2, y2, x3, y3))
+    return result / 2;
   }
 
 
-  //1. Bounding
+
+  // No area check
+  let order = isClockwise(x1, y1, x2, y2, x3, y3);
+  if (order == 0)
+    return;
+
+  //Bounding
   let minX = Math.floor(Math.min(x1, x2, x3));
   let maxX = Math.ceil(Math.max(x1, x2, x3));
   let minY = Math.floor(Math.min(y1, y2, y3));
@@ -140,14 +172,21 @@ Rasterizer.prototype.drawTriangle = function(v1, v2, v3)
       let px = x + 0.5;
       let py = y + 0.5;
       if (pointIsInsideTriangle(x1, y1, x2, y2, x3, y3, px, py))
-        this.setPixel(Math.floor(px), Math.floor(py), [r1, g1, b1]);
+      {
+        let area = triangleArea(x1,y1,x2,y2,x3,y3);
+        let a1 = triangleArea(px,py,x2,y2,x3,y3);
+        let a2 = triangleArea(x1,y1,px,py,x3,y3);
+        let a3 = triangleArea(x1,y1,x2,y2,px,py);
+        let u = a1 / area;
+        let v = a2 / area;
+        let w = a3 / area;
+        let pcr = u * r1 + v * r2 + w * r3;
+        let pcg = u * g1 + v * g2 + w * g3;
+        let pcb = u * b1 + v * b2 + w * b3;
+        this.setPixel(x, y, [pcr, pcg, pcb]);
+      }
     }
   }
-
-  
-  this.setPixel(Math.floor(x1), Math.floor(y1), [r1, g1, b1]);
-  this.setPixel(Math.floor(x2), Math.floor(y2), [r2, g2, b2]);
-  this.setPixel(Math.floor(x3), Math.floor(y3), [r3, g3, b3]);
 }
 
 
