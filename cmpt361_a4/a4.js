@@ -22,40 +22,28 @@ TriangleMesh.prototype.createCube = function()
   this.positions = [];
   this.normals = [];
   this.uvCoords = [];
-  this.indices = []; // cube 用 triangle soup，不需要 index buffer
+  this.indices = [];
 
-  // 向 mesh 里加一个面
-  // a, b, c, d 按“从面外侧看过去”的顺时针/逆时针一致顺序给四个角
-  // 这里我们按两个三角形: (a,b,c) 和 (a,c,d)
-  const addFace = (a, b, c, d, n, uvA, uvB, uvC, uvD) => {
-    // triangle 1
+  const addFace = (a, b, c, d, n, uvA, uvB, uvC, uvD) => 
+  {
     this.positions.push(...a, ...b, ...c);
     this.normals.push(...n, ...n, ...n);
     this.uvCoords.push(...uvA, ...uvB, ...uvC);
 
-    // triangle 2
     this.positions.push(...a, ...c, ...d);
     this.normals.push(...n, ...n, ...n);
     this.uvCoords.push(...uvA, ...uvC, ...uvD);
   };
 
-  // dice.jpg 是 2 列 × 3 行
-  // 左列: 1,2,3
-  // 右列: 4,5,6
-  const cell = (col, row) => {
-    const u0 = col * 0.5;
-    const u1 = u0 + 0.5;
+  const cell = (col, row) => 
+  {
+    const u0 = col / 2;
+    const u1 = u0 + (1/2);
     const v0 = row / 3;
-    const v1 = v0 + 1 / 3;
-    return {
-      bl: [u0, v0],
-      br: [u1, v0],
-      tr: [u1, v1],
-      tl: [u0, v1],
-    };
+    const v1 = v0 + (1/3);
+    return {bl: [u0, v0], br: [u1, v0], tr: [u1, v1], tl: [u0, v1],};
   };
 
-  // row: 0 = bottom, 1 = middle, 2 = top
   const uv1 = cell(0, 2); // front
   const uv2 = cell(0, 1); // right
   const uv3 = cell(0, 0); // top
@@ -63,109 +51,81 @@ TriangleMesh.prototype.createCube = function()
   const uv5 = cell(1, 1); // left
   const uv6 = cell(1, 0); // back
 
-  // Front face (z = +1), normal = (0,0,1)
-  addFace(
-    [-1, -1,  1],
-    [ 1, -1,  1],
-    [ 1,  1,  1],
-    [-1,  1,  1],
-    [0, 0, 1],
-    uv1.bl, uv1.br, uv1.tr, uv1.tl
-  );
-
-  // Right face (x = +1), normal = (1,0,0)
-  addFace(
-    [ 1, -1,  1],
-    [ 1, -1, -1],
-    [ 1,  1, -1],
-    [ 1,  1,  1],
-    [1, 0, 0],
-    uv2.bl, uv2.br, uv2.tr, uv2.tl
-  );
-
-  // Top face (y = +1), normal = (0,1,0)
-  addFace(
-    [-1,  1,  1],
-    [ 1,  1,  1],
-    [ 1,  1, -1],
-    [-1,  1, -1],
-    [0, 1, 0],
-    uv3.bl, uv3.br, uv3.tr, uv3.tl
-  );
-
-  // Bottom face (y = -1), normal = (0,-1,0)
-  addFace(
-    [-1, -1, -1],
-    [ 1, -1, -1],
-    [ 1, -1,  1],
-    [-1, -1,  1],
-    [0, -1, 0],
-    uv4.bl, uv4.br, uv4.tr, uv4.tl
-  );
-
-  // Left face (x = -1), normal = (-1,0,0)
-  addFace(
-    [-1, -1, -1],
-    [-1, -1,  1],
-    [-1,  1,  1],
-    [-1,  1, -1],
-    [-1, 0, 0],
-    uv5.bl, uv5.br, uv5.tr, uv5.tl
-  );
-
-  // Back face (z = -1), normal = (0,0,-1)
-  addFace(
-    [ 1, -1, -1],
-    [-1, -1, -1],
-    [-1,  1, -1],
-    [ 1,  1, -1],
-    [0, 0, -1],
-    uv6.bl, uv6.br, uv6.tr, uv6.tl
-  );
+  addFace([-1, -1,  1], [ 1, -1,  1], [ 1,  1,  1], [-1,  1,  1], [0, 0, 1], uv1.bl, uv1.br, uv1.tr, uv1.tl);
+  addFace([ 1, -1,  1], [ 1, -1, -1], [ 1,  1, -1], [ 1,  1,  1], [1, 0, 0], uv2.bl, uv2.br, uv2.tr, uv2.tl);
+  addFace([-1,  1,  1], [ 1,  1,  1], [ 1,  1, -1], [-1,  1, -1], [0, 1, 0], uv3.bl, uv3.br, uv3.tr, uv3.tl);
+  addFace([-1, -1, -1], [ 1, -1, -1], [ 1, -1,  1], [-1, -1,  1], [0,-1, 0], uv4.bl, uv4.br, uv4.tr, uv4.tl);
+  addFace([-1, -1, -1], [-1, -1,  1], [-1,  1,  1], [-1,  1, -1], [-1,0, 0], uv5.bl, uv5.br, uv5.tr, uv5.tl);
+  addFace([ 1, -1, -1], [-1, -1, -1], [-1,  1, -1], [ 1,  1, -1], [0, 0,-1], uv6.bl, uv6.br, uv6.tr, uv6.tl);
 }
 
 TriangleMesh.prototype.createSphere = function(numStacks, numSectors) 
 {
+  const radius = 1.0;
+
   this.positions = [];
   this.normals = [];
   this.uvCoords = [];
   this.indices = [];
 
-  for (let i = 0; i <= numStacks; i++) 
+  let x, y, z, xy;
+  let nx, ny, nz;
+  let s, t;
+
+  const lengthInv = 1.0 / radius;
+  const sectorStep = 2 * Math.PI / numSectors;
+  const stackStep = Math.PI / numStacks;
+
+  let sectorAngle, stackAngle;
+
+  for (let i = 0; i <= numStacks; ++i)
   {
-    const stackFrac = i / numStacks;
-    const stackAngle = Math.PI / 2 - stackFrac * Math.PI;
+    stackAngle = Math.PI / 2 - i * stackStep;
+    xy = radius * Math.cos(stackAngle);
+    z = radius * Math.sin(stackAngle);
 
-    const xy = Math.cos(stackAngle);
-    const y = Math.sin(stackAngle);
+    for (let j = 0; j <= numSectors; ++j)
+    {
+      sectorAngle = j * sectorStep;
 
-    for (let j = 0; j <= numSectors; j++) {
-      const sectorFrac = j / numSectors;
-      const sectorAngle = sectorFrac * 2 * Math.PI;
-
-      const x = xy * Math.cos(sectorAngle);
-      const z = xy * Math.sin(sectorAngle);
+      // vertex position (x, y, z)
+      x = xy * Math.cos(sectorAngle);
+      y = xy * Math.sin(sectorAngle);
 
       this.positions.push(x, y, z);
-      this.normals.push(x, y, z);
 
-      // 关键：只左右翻转 u，不上下翻 v
-      this.uvCoords.push(sectorFrac, stackFrac);
+      nx = x * lengthInv;
+      ny = y * lengthInv;
+      nz = z * lengthInv;
+      this.normals.push(nx, ny, nz);
+
+      s = 1 - j / numSectors;
+      t = i / numStacks;
+      this.uvCoords.push(s, t);
     }
-    for (let i = 0; i < numStacks; i++) 
+  }
+
+  let k1, k2;
+
+  for (let i = 0; i < numStacks; ++i)
+  {
+    k1 = i * (numSectors + 1);
+    k2 = k1 + numSectors + 1;
+
+    for (let j = 0; j < numSectors; ++j, ++k1, ++k2)
     {
-      for (let j = 0; j < numSectors; j++) 
+      if (i !== 0)
       {
-        const k1 = i * (numSectors + 1) + j;
-        const k2 = k1 + numSectors + 1;
+        this.indices.push(k1);
+        this.indices.push(k2);
+        this.indices.push(k1 + 1);
+      }
 
-        if (i !== 0) {
-          this.indices.push(k1, k2, k1 + 1);
-        }
-
-        if (i !== numStacks - 1) {
-          this.indices.push(k1 + 1, k2, k2 + 1);
-        }
+      if (i !== (numStacks - 1))
+      {
+        this.indices.push(k1 + 1);
+        this.indices.push(k2);
+        this.indices.push(k2 + 1);
       }
     }
   }
@@ -177,22 +137,21 @@ Scene.prototype.computeTransformation = function(transformSequence)
   let overallTransform = Mat4.create();  // identity matrix
   const degToRad = (deg) => deg * Math.PI / 180.0;
 
-  const makeTranslation = (x, y, z) => {
+  const makeTranslation = (x, y, z) => 
+  {
     let m = Mat4.create();
-    Mat4.set(
-      m,
+    Mat4.set(m,
       1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0,
-      x, y, z, 1
-    );
+      x, y, z, 1);
     return m;
   };
 
-  const makeScale = (x, y, z) => {
+  const makeScale = (x, y, z) =>
+  {
     let m = Mat4.create();
-    Mat4.set(
-      m,
+    Mat4.set(m,
       x, 0, 0, 0,
       0, y, 0, 0,
       0, 0, z, 0,
@@ -201,7 +160,8 @@ Scene.prototype.computeTransformation = function(transformSequence)
     return m;
   };
 
-  const makeRotationX = (thetaDeg) => {
+  const makeRotationX = (thetaDeg) =>
+  {
     const t = degToRad(thetaDeg);
     const c = Math.cos(t);
     const s = Math.sin(t);
@@ -216,22 +176,23 @@ Scene.prototype.computeTransformation = function(transformSequence)
     return m;
   };
 
-  const makeRotationY = (thetaDeg) => {
+  const makeRotationY = (thetaDeg) => 
+  {
     const t = degToRad(thetaDeg);
     const c = Math.cos(t);
     const s = Math.sin(t);
     let m = Mat4.create();
-    Mat4.set(
-      m,
+    Mat4.set(m,
       c, 0, -s, 0,
-      0, 1, 0, 0,
-      s, 0, c, 0,
-      0, 0, 0, 1
+      0, 1,  0, 0,
+      s, 0,  c, 0,
+      0, 0,  0, 1
     );
     return m;
   };
 
-  const makeRotationZ = (thetaDeg) => {
+  const makeRotationZ = (thetaDeg) => 
+  {
     const t = degToRad(thetaDeg);
     const c = Math.cos(t);
     const s = Math.sin(t);
@@ -246,49 +207,39 @@ Scene.prototype.computeTransformation = function(transformSequence)
     return m;
   };
 
-  for (const transformDefinition of transformSequence) {
+  for (const transformDefinition of transformSequence)
+  {
     let parts = transformDefinition;
-
-    // 兼容 parser 可能给的不同格式
-    if (typeof parts === "string") {
-      parts = parts.split(",");
-    }
-
     let op = null;
     let args = [];
 
-    if (Array.isArray(parts)) {
-      // 可能是 ["T","1","2","3"]
-      // 也可能是 ["X","id","T","1","2","3"]
-      const opIndex = parts.findIndex(p => p === "T" || p === "S" || p === "Rx" || p === "Ry" || p === "Rz");
-      op = parts[opIndex];
-      args = parts.slice(opIndex + 1).map(Number);
-    } else if (typeof parts === "object" && parts !== null) {
-      // 防御式写法：如果 parser 存成 object
-      op = parts.type || parts.op;
-      if (op === "T" || op === "S") {
-        args = [Number(parts.x), Number(parts.y), Number(parts.z)];
-      } else {
-        args = [Number(parts.theta)];
-      }
-    }
+    const opIndex = parts.findIndex(p => p === "T" || p === "S" || p === "Rx" || p === "Ry" || p === "Rz");
+    op = parts[opIndex];
+    args = parts.slice(opIndex + 1).map(Number);
 
     let currentTransform = Mat4.create();
 
-    if (op === "T") {
+    if (op === "T") 
+    {
       currentTransform = makeTranslation(args[0], args[1], args[2]);
-    } else if (op === "S") {
+    } 
+    else if (op === "S") 
+    {
       currentTransform = makeScale(args[0], args[1], args[2]);
-    } else if (op === "Rx") {
+    } 
+    else if (op === "Rx") 
+    {
       currentTransform = makeRotationX(args[0]);
-    } else if (op === "Ry") {
+    } 
+    else if (op === "Ry") 
+    {
       currentTransform = makeRotationY(args[0]);
-    } else if (op === "Rz") {
+    } 
+    else if (op === "Rz") 
+    {
       currentTransform = makeRotationZ(args[0]);
     }
 
-    // 输入顺序是“先应用的先出现”
-    // 对列向量来说：overall = current * overall
     let temp = Mat4.create();
     Mat4.multiply(temp, currentTransform, overallTransform);
     overallTransform = temp;
@@ -307,37 +258,22 @@ varying vec2 vTexCoord;
 
 // TODO: implement vertex shader logic below
 varying vec3 vNormal;
-varying vec3 vLightDir;
-varying vec3 vViewDir;
+varying vec3 vFragPos;
+varying vec3 vLightPos;
 
-varying vec3 temp;
-
-void main() {
+void main() 
+{
   vec4 worldPos = modelMatrix * vec4(position, 1.0);
+  vec4 viewPos  = viewMatrix * worldPos;
 
-  // vertex position in view/camera space
-  vec4 viewPos = viewMatrix * worldPos;
-
-  // light position transformed into view/camera space
-  vec3 lightPosView = (viewMatrix * vec4(lightPosition, 1.0)).xyz;
-
-  // transform normal into view/camera space
   vNormal = normalize(normalMatrix * normal);
 
-  // direction from surface point to light
-  vLightDir = lightPosView - viewPos.xyz;
+  vFragPos = viewPos.xyz;
 
-  // direction from surface point to camera
-  // in view space, camera is at origin (0,0,0)
-  vViewDir = normalize(-viewPos.xyz);
+  vLightPos = (viewMatrix * vec4(lightPosition, 1.0)).xyz;
 
-  // pass UV to fragment shader
   vTexCoord = uvCoord;
 
-  // optional debug output
-  temp = 0.5 * (vNormal + vec3(1.0));
-
-  // final clip-space position
   gl_Position = projectionMatrix * viewPos;
 }
 `;
@@ -351,35 +287,35 @@ uniform bool hasTexture;
 varying vec2 vTexCoord;
 
 // TODO: implement fragment shader logic below
-
 varying vec3 vNormal;
-varying vec3 vLightDir;
-varying vec3 vViewDir;
+varying vec3 vFragPos;
+varying vec3 vLightPos;
 
-varying vec3 temp;
-
-void main() {
+void main() 
+{
   vec3 N = normalize(vNormal);
-  vec3 Lvec = vLightDir;
+  vec3 Lvec = vLightPos - vFragPos;
   float dist2 = dot(Lvec, Lvec);
   vec3 L = normalize(Lvec);
-  vec3 V = normalize(vViewDir);
+  vec3 V = normalize(-vFragPos);
   vec3 H = normalize(L + V);
 
   vec3 ambient = ka * lightIntensity;
 
-  float diff = max(dot(N, L), 0.0);
-  vec3 diffuse = kd * lightIntensity * diff / dist2;
+  float lambert = max(dot(N, L), 0.0);
+  vec3 diffuse = kd * lightIntensity * lambert / dist2;
 
   float spec = 0.0;
-  if (diff > 0.0) {
+  if (lambert > 0.0) 
+  {
     spec = pow(max(dot(N, H), 0.0), shininess);
   }
   vec3 specular = ks * lightIntensity * spec / dist2;
 
   vec3 color = ambient + diffuse + specular;
 
-  if (hasTexture) {
+  if (hasTexture) 
+  {
     vec3 texColor = texture2D(uTexture, vTexCoord).rgb;
     color *= texColor;
   }
@@ -391,23 +327,41 @@ void main() {
 ////////////////////////////////////////////////////////////////////////////////
 // EXTRA CREDIT: change DEF_INPUT to create something interesting!
 ////////////////////////////////////////////////////////////////////////////////
+
+
 const DEF_INPUT = [
-  "c,myCamera,perspective,5,5,5,0,0,0,0,1,0;",
-  "l,myLight,point,0,5,0,2,2,2;",
+  "c,myCamera,perspective,8,6,8,0,1,0,0,1,0;",
+  "l,myLight,point,0,8,2,3,3,3;",
+
   "p,unitCube,cube;",
   "p,unitSphere,sphere,20,20;",
-  "m,redDiceMat,0.3,0,0,0.7,0,0,1,1,1,15,dice.jpg;",
-  "m,grnDiceMat,0,0.3,0,0,0.7,0,1,1,1,15,dice.jpg;",
-  "m,bluDiceMat,0,0,0.3,0,0,0.7,1,1,1,15,dice.jpg;",
-  "m,globeMat,0.3,0.3,0.3,0.7,0.7,0.7,1,1,1,5,globe.jpg;",
+
+  "m,redDiceMat,0.3,0,0,0.7,0,0,1,1,1,20,dice.jpg;",
+  "m,grnDiceMat,0,0.3,0,0,0.7,0,1,1,1,20,dice.jpg;",
+  "m,bluDiceMat,0,0,0.3,0,0,0.7,1,1,1,20,dice.jpg;",
+  "m,globeMat,0.3,0.3,0.3,0.7,0.7,0.7,1,1,1,8,globe.jpg;",
+
+  "o,s1,unitSphere,globeMat;",
+  "o,s2,unitSphere,globeMat;",
+  "o,s3,unitSphere,globeMat;",
+  "o,s4,unitSphere,globeMat;",
   "o,rd,unitCube,redDiceMat;",
   "o,gd,unitCube,grnDiceMat;",
   "o,bd,unitCube,bluDiceMat;",
-  "o,gl,unitSphere,globeMat;",
-  "X,rd,Rz,75;X,rd,Rx,90;X,rd,S,0.5,0.5,0.5;X,rd,T,-1,0,2;",
-  "X,gd,Ry,45;X,gd,S,0.5,0.5,0.5;X,gd,T,2,0,2;",
-  "X,bd,S,0.5,0.5,0.5;X,bd,Rx,90;X,bd,T,2,0,-1;",
-  "X,gl,S,1.5,1.5,1.5;X,gl,Rx,90;X,gl,Ry,-150;X,gl,T,0,1.5,0;",
+  "o,rd2,unitCube,redDiceMat;",
+  "o,gd2,unitCube,grnDiceMat;",
+
+  "X,s1,S,2.0,2.0,2.0;X,s1,Rx,90;X,s1,Ry,-150;X,s1,T,0,1.8,0;",
+
+  "X,s2,S,0.45,0.45,0.45;X,s2,Rx,90;X,s2,Ry,-30;X,s2,T,3.0,2.6,0.8;",
+  "X,s3,S,0.35,0.35,0.35;X,s3,Rx,90;X,s3,Ry,40;X,s3,T,-2.6,1.1,1.8;",
+  "X,s4,S,0.28,0.28,0.28;X,s4,Rx,90;X,s4,Ry,120;X,s4,T,1.2,4.0,-2.0;",
+
+  "X,rd,Rz,30;X,rd,Rx,35;X,rd,S,0.55,0.55,0.55;X,rd,T,2.8,0.2,2.4;",
+  "X,gd,Ry,45;X,gd,Rx,20;X,gd,S,0.5,0.5,0.5;X,gd,T,-3.0,0.4,1.0;",
+  "X,bd,Rx,75;X,bd,Rz,20;X,bd,S,0.42,0.42,0.42;X,bd,T,2.0,3.8,2.2;",
+  "X,rd2,Ry,-35;X,rd2,Rx,15;X,rd2,S,0.32,0.32,0.32;X,rd2,T,-1.0,4.2,-2.6;",
+  "X,gd2,Rz,60;X,gd2,Ry,15;X,gd2,S,0.26,0.26,0.26;X,gd2,T,3.6,1.7,-1.8;",
 ].join("\n");
 
 // DO NOT CHANGE ANYTHING BELOW HERE
